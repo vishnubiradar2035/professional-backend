@@ -6,8 +6,10 @@ import fs from "fs";
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  api_secret: "DvDuvFODh-GPTnNNavwxx3UjH1k"
+  // api_secret: process.env.CLOUDINARY_API_SECRET,
 });
+// CLOUDINARY_URL=cloudinary://736322359312953:DvDuvFODh-GPTnNNavwxx3UjH1k@dajriqzr2
 
 const uploadONCloudinary = async (localFilPath) => {
   try {
@@ -15,10 +17,9 @@ const uploadONCloudinary = async (localFilPath) => {
 
     //upload the file on cloudinary
    const response = await cloudinary.uploader.upload(localFilPath,{
-        resource_type:"auto"
+        resource_type: "auto"
     });
-    console.log("Fileis upload on clounary ",response)
-
+    fs.unlinkSync(localFilPath)
     return response;
   } catch (error) {
 
