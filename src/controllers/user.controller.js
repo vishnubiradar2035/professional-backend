@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
 import { User } from "../models/user.model.js";
+import mongoose, { Mongoose } from "mongoose";
 
 const generateAccesssANdReffereshToken = async (userId) => {
   try {
@@ -139,7 +140,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: { refreshTocken: 1 },
+      $unset: { refreshTocken: 1 },
     },
     {
       new: true,
@@ -154,7 +155,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshTocken", options)
-    .json(new ApiResponse(200, {}, "User loggeout"));
+    .json(new ApiResponse(200, {}, "User log out successfully"));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -202,7 +203,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
-  const user = await User.findById(req.User?._id);
+  const user = await User.findById(req.user?._id);
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
   if (!isPasswordCorrect) {
     throw new ApiError(400, "Invalid old password");
@@ -215,17 +216,16 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .json(200, res.user, "current user fetched sucessfully");
+  return res.status(200).json(new ApiResponse(200, req.user, "current user fetched sucessfully"));
 });
 
 const updateAccountDetail = asyncHandler(async (req, res) => {
   const { fullname, email } = req.body;
+  console.log("fullname",fullname,email)
   if (!fullname || !email) {
     throw new ApiError(400, "all filed are required ");
   }
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
